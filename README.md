@@ -4,9 +4,6 @@
 项目创于2023年9月12日
 
 ```
-### 结构说明
-
-```
 ZZVisionTools/
     ├── docs/                      # 项目文档
     ├── src/                       # 源代码目录
@@ -35,4 +32,3 @@ ZZVisionTools/
     ├── requirements.txt           # Python 依赖
     ├── README.md                  # 项目文档和说明
 ```
-```‸
