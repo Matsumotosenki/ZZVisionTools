@@ -1,3 +1,2 @@
---index-url http://mirrors.aliyun.com/pypi/simple/
 
 PyQt6~=6.5.2
