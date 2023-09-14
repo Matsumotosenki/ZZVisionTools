@@ -5,13 +5,11 @@ File:main_windows.py
 """
 import sys
 
-from PyQt6 import QtWidgets
 
 from tool_bar import ToolWindows
 from ui_event import UIEvent
 
-from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QFrame, QSplitter, QTextEdit
+from PyQt6.QtWidgets import QApplication, QWidget
 
 
 class MainWindows(ToolWindows, QWidget):
