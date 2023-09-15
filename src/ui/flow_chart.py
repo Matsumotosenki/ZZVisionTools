@@ -15,12 +15,22 @@ class FlowChart(QWidget):
         super().__init__()
 
     def initUI(self):
-        self.layout = QGridLayout(self)
+        self.FlowChart()
+
+    def FlowChart(self):
+        """流程图设置"""
+        # pg.setConfigOptions(background='w')
+        # pg.setConfigOptions(crashWarning=True)
+        # pg.setConfigOptions(exitCleanup=True)
+
+        self.FlowChatlayout = QGridLayout(self)
         self.flowChartBox = QGroupBox(self)
         self.fc = Flowchart()
         self.flowChartWidget = self.fc.widget().chartWidget
         self.flowChartLayout = QGridLayout(self.flowChartBox)
         self.flowChartLayout.setContentsMargins(0, 0, 0, 0)
         self.flowChartLayout.addWidget(self.flowChartWidget)
-        self.layout.addWidget(self.flowChartBox, 0, 0, 1, 1)
+        self.FlowChatlayout.addWidget(self.flowChartBox, 0, 0, 1, 1)
+
+
 

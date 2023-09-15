@@ -5,7 +5,7 @@ File:tool_bar.py
 """
 from PyQt6 import QtCore
 from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtWidgets import QMainWindow, QFrame, QSplitter
+from PyQt6.QtWidgets import QMainWindow, QFrame, QSplitter, QGridLayout, QLabel, QPushButton, QListView
 from flow_chart import FlowChart
 
 
@@ -15,10 +15,17 @@ class ToolWindows(QMainWindow, FlowChart):
         super().__init__()
 
     def initUI(self):
-        # FlowChart.initUI(self)
-        self.ToolBar()
-        self.LayoutWindows()
+        # 最上方的菜单和最底下的状态栏显示
         self.MenuBar()
+        # 工具栏
+        self.ToolBar()
+        # 流程图
+        self.FlowChart()
+        # 图像处理
+        self.ImageProces()
+        # 窗口布局层，放在最后
+        self.LayoutWindows()
+
 
     '''窗口布局设定函数'''
 
@@ -27,11 +34,13 @@ class ToolWindows(QMainWindow, FlowChart):
         self.topLeft.setFrameShape(QFrame.Shape.StyledPanel)
         self.topLeft.setBaseSize(200, 300)
         self.topLeft.setMinimumWidth(50)
+        self.topLeft.setLayout(self.imgProcessLayout)
 
         self.topMiddle = QFrame(self)
         self.topMiddle.setFrameShape(QFrame.Shape.StyledPanel)
         self.topMiddle.setBaseSize(400, 300)
         self.topMiddle.setMinimumWidth(300)
+        self.topMiddle.setLayout(self.FlowChatlayout)
 
         self.topRight_t = QFrame(self)
         self.topRight_t.setFrameShape(QFrame.Shape.StyledPanel)
@@ -128,3 +137,25 @@ class ToolWindows(QMainWindow, FlowChart):
         self.helpMenu.addAction(self.viewHelp)
 
         self.statusBar()
+
+    def ImageProces(self):
+        self.imgProcessLayout = QGridLayout(self)
+
+
+        label1 = QLabel('Label 1')
+        label2 = QLabel('Label 2')
+        button1 = QPushButton('Button 1')
+        button2 = QPushButton('Button 2')
+
+        # 将控件添加到布局中，指定行和列
+        self.imgProcessLayout.addWidget(label1, 0, 0)
+        self.imgProcessLayout.addWidget(label2, 0, 1)
+        self.imgProcessLayout.addWidget(button1, 1, 0)
+        self.imgProcessLayout.addWidget(button2, 1, 1)
+
+
+
+
+
+
+
