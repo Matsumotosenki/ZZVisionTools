@@ -20,6 +20,7 @@ ZZVisionTools/
     │   │   ├── __init__.py
     │   │   ├── preprocessing.py   # 图像预处理
     │   │   ├── object_detection.py# 目标检测
+    │   │   ├── counter_point.py   # 对位
     │   │   └── ...
     │   ├── communication/         # 通信模块 (与工业设备交互)
     │   ├── logging_utils.py       # 日志记录工具
