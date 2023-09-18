@@ -16,6 +16,7 @@ class FlowChart(QWidget):
 
     def initUI(self):
         self.FlowChart()
+        pass
 
     def FlowChart(self):
         """流程图设置"""

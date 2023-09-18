@@ -4,8 +4,9 @@ DATE:2023/9/13 14:26
 File:tool_bar.py
 """
 from PyQt6 import QtCore
-from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtWidgets import QMainWindow, QFrame, QSplitter, QGridLayout, QLabel, QPushButton, QListView
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QAction, QIcon, QStandardItemModel, QStandardItem
+from PyQt6.QtWidgets import QMainWindow, QFrame, QSplitter, QGridLayout, QLabel, QPushButton, QListView, QVBoxLayout
 from flow_chart import FlowChart
 
 
@@ -26,15 +27,15 @@ class ToolWindows(QMainWindow, FlowChart):
         # 窗口布局层，放在最后
         self.LayoutWindows()
 
-
     '''窗口布局设定函数'''
 
     def LayoutWindows(self):
         self.topLeft = QFrame(self)
         self.topLeft.setFrameShape(QFrame.Shape.StyledPanel)
-        self.topLeft.setBaseSize(200, 300)
-        self.topLeft.setMinimumWidth(50)
-        self.topLeft.setLayout(self.imgProcessLayout)
+        self.topLeft.setMaximumWidth(160)
+        self.topLeft.setMinimumWidth(70)
+        # self.topLeft.setFixedWidth(150)
+        self.topLeft.setLayout(self.img_process_layout)
 
         self.topMiddle = QFrame(self)
         self.topMiddle.setFrameShape(QFrame.Shape.StyledPanel)
@@ -139,23 +140,23 @@ class ToolWindows(QMainWindow, FlowChart):
         self.statusBar()
 
     def ImageProces(self):
-        self.imgProcessLayout = QGridLayout(self)
+        self.img_process_layout = QVBoxLayout(self)
+        self.list_view = QListView(self)
+        self.img_process_layout.addWidget(self.list_view)
 
+        # 创建一个QStandardItemModel
+        model = QStandardItemModel()
 
-        label1 = QLabel('Label 1')
-        label2 = QLabel('Label 2')
-        button1 = QPushButton('Button 1')
-        button2 = QPushButton('Button 2')
+        process_name = ['灰度化', '二值化', '霍夫圆检测', '截取ROI区域']
+        # 添加带有图标的项目
+        for i in process_name:
+            icon = QIcon('icon/Edit.png')
+            pixmap = icon.pixmap(QSize(55, 55))
+            item = QStandardItem(QIcon(pixmap), f'{i}')
+            # item.setDragEnabled(True)  # 允许拖拽
+            item.setSizeHint(QSize(50, 50))
+            model.appendRow(item)
 
-        # 将控件添加到布局中，指定行和列
-        self.imgProcessLayout.addWidget(label1, 0, 0)
-        self.imgProcessLayout.addWidget(label2, 0, 1)
-        self.imgProcessLayout.addWidget(button1, 1, 0)
-        self.imgProcessLayout.addWidget(button2, 1, 1)
-
-
-
-
-
-
-
+        # 将模型设置给QListView
+        self.list_view.setModel(model)
+        # self.list_view.setFixedWidth(150)
