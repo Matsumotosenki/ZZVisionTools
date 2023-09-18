@@ -30,7 +30,7 @@ class DemoUI(QWidget):
         self.fc = Flowchart()
         self.flowChartWidget = self.fc.widget().chartWidget
         self.flowChartLayout = QGridLayout(self.flowChartBox)
-        self.flowChartLayout.setContentsMargins(0, 0, 0, 0)
+        self.flowChartLayout.setContentsMargins(1, 2, 1, 5)
         self.flowChartLayout.addWidget(self.flowChartWidget)
         self.layout.addWidget(self.flowChartBox, 0, 0, 1, 1)
 

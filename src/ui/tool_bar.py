@@ -4,16 +4,18 @@ DATE:2023/9/13 14:26
 File:tool_bar.py
 """
 from PyQt6 import QtCore
-from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QAction, QIcon, QStandardItemModel, QStandardItem
-from PyQt6.QtWidgets import QMainWindow, QFrame, QSplitter, QGridLayout, QLabel, QPushButton, QListView, QVBoxLayout
-from flow_chart import FlowChart
+
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import *
+from pyqtgraph.flowchart import Flowchart
 
 
-class ToolWindows(QMainWindow, FlowChart):
+class ToolWindows(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.initUI()
 
     def initUI(self):
         # 最上方的菜单和最底下的状态栏显示
@@ -41,7 +43,7 @@ class ToolWindows(QMainWindow, FlowChart):
         self.topMiddle.setFrameShape(QFrame.Shape.StyledPanel)
         self.topMiddle.setBaseSize(400, 300)
         self.topMiddle.setMinimumWidth(300)
-        self.topMiddle.setLayout(self.FlowChatlayout)
+        self.topMiddle.setLayout(self.flow_chart_layout)
 
         self.topRight_t = QFrame(self)
         self.topRight_t.setFrameShape(QFrame.Shape.StyledPanel)
@@ -140,23 +142,136 @@ class ToolWindows(QMainWindow, FlowChart):
         self.statusBar()
 
     def ImageProces(self):
+        self.img_process_list = ZZListWidget()
         self.img_process_layout = QVBoxLayout(self)
-        self.list_view = QListView(self)
-        self.img_process_layout.addWidget(self.list_view)
+        self.img_process_layout.addWidget(self.img_process_list)
 
-        # 创建一个QStandardItemModel
-        model = QStandardItemModel()
+    def FlowChart(self):
+        self.flowChart = FlowChart()
+        self.flow_chart_layout = QVBoxLayout(self)
+        self.flow_chart_layout.addWidget(self.flowChart)
 
-        process_name = ['灰度化', '二值化', '霍夫圆检测', '截取ROI区域']
-        # 添加带有图标的项目
-        for i in process_name:
-            icon = QIcon('icon/Edit.png')
-            pixmap = icon.pixmap(QSize(55, 55))
-            item = QStandardItem(QIcon(pixmap), f'{i}')
-            # item.setDragEnabled(True)  # 允许拖拽
-            item.setSizeHint(QSize(50, 50))
-            model.appendRow(item)
 
-        # 将模型设置给QListView
-        self.list_view.setModel(model)
-        # self.list_view.setFixedWidth(150)
+class ZZListWidget(QListWidget):
+    def __init__(self):
+        super().__init__()
+        process_name = [
+            {"name": "灰度化", "icon_path": "icon/Edit.png"},
+            {"name": "二值化", "icon_path": "icon/Open.png"},
+            {"name": "霍夫圆检测", "icon_path": "icon/Quit.png"},
+            {"name": "截取ROI区域", "icon_path": "icon/Save.png"}
+        ]
+
+        for data in process_name:
+            item = QListWidgetItem(data["name"])
+            icon = QIcon(data["icon_path"])
+
+            # 设置图标的显示大小
+            pixmap = icon.pixmap(QSize(40, 40))
+            item.setIcon(QIcon(pixmap))
+
+            item.setSizeHint(QSize(60, 50))
+            self.addItem(item)
+            self.setDefaultDropAction(Qt.DropAction.CopyAction)  # 设置拖拽模式为复制
+            self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)  # 拖拽模式为内部拖放
+
+        # 右键菜单操作
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.showContextMenu)
+
+    def showContextMenu(self, pos):
+        menu = QMenu(self)
+        delete_action = QAction("删除", self)
+        delete_action.triggered.connect(self.deleteSelectedItem)
+        menu.addAction(delete_action)
+        menu.exec(self.mapToGlobal(pos))
+
+    def deleteSelectedItem(self):
+        selected_item = self.currentItem()
+        if selected_item:
+            row = self.row(selected_item)
+            self.takeItem(row)
+
+
+class FlowChart(QTabWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.FlowChart()
+
+    def FlowChart(self):
+        self.tabW1 = QWidget()
+        self.tabW2 = QWidget()
+        self.tabW3 = QWidget()
+
+        # tabW1、tabW2窗口分别加入选项卡1和选项卡2
+        self.addTab(self.tabW1, '选项卡1')
+        self.addTab(self.tabW2, '选项卡2')
+        self.addTab(self.tabW3, '选项卡3')
+
+        self.tabW1_UI()
+        self.tabW2_UI()
+        self.tabW3_UI()
+
+    def tabW1_UI(self):
+        fLayout = QFormLayout()
+        self.xm = QLineEdit()
+        self.xb1 = QRadioButton('男')
+        self.xb2 = QRadioButton('女')
+        self.xb1.setChecked(True)
+        self.csny = QLineEdit()
+        btn = QPushButton("确定")
+        # btn.clicked.connect(self.clickedFunc)
+
+        hLay = QHBoxLayout()
+        hLay.addWidget(self.xb1)
+        hLay.addWidget(self.xb2)
+        fLayout.addRow('姓名: ', self.xm)
+        fLayout.addRow('性别: ', hLay)
+        fLayout.addRow('出生年月: ', self.csny)
+        fLayout.addRow(' ', btn)
+        self.setTabText(0, '基本信息')  # 修改第1个选项卡标题
+        self.tabW1.setLayout(fLayout)
+
+        # 定义窗口对象tabW2界面控件
+
+    def tabW2_UI(self):
+        hLay = QHBoxLayout()
+        self.cb1 = QCheckBox('C++')
+        self.cb2 = QCheckBox('Java')
+        self.cb3 = QCheckBox('C#')
+        self.cb1.setChecked(True)
+        hLay.addWidget(self.cb1)
+        hLay.addWidget(self.cb2)
+        hLay.addWidget(self.cb3)
+        self.setTabText(1, '编程语言')  # 修改第2个选项卡标题
+        self.tabW2.setLayout(hLay)
+
+    def tabW3_UI(self):
+        """流程图设置"""
+        # pg.setConfigOptions(background='w')
+        # pg.setConfigOptions(crashWarning=True)
+        # pg.setConfigOptions(exitCleanup=True)
+
+        FLay = QHBoxLayout()
+
+        self.FlowChatlayout = QGridLayout(self)
+        self.flowChartBox = QGroupBox(self)
+        self.fc = Flowchart(
+            terminals={
+                'InputTerminal': {'io': 'in'},
+                'OutputTerminal': {'io': 'out'},
+                'Terminal': {'io': 'in'},
+                'OutTerminal': {'io': ''}
+            }
+        )
+        # self.fc.inputNode.close()
+        # self.fc.outputNode.close()
+
+        self.flowChartWidget = self.fc.widget().chartWidget
+        self.flowChartLayout = QGridLayout(self.flowChartBox)
+        self.flowChartLayout.setContentsMargins(0, 0, 0, 0)
+        self.flowChartLayout.addWidget(self.flowChartWidget)
+        FLay.addWidget(self.flowChartBox, 0)
+        self.setTabText(2, '流程图3')  # 修改第2个选项卡标题
+        self.tabW3.setLayout(FLay)

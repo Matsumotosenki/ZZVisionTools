@@ -1,23 +1,18 @@
-"""
-Author:Qychui
-DATE:2023/9/14 17:29
-File:flow_chart.py
-"""
 import sys
-
-from PyQt6.QtWidgets import QWidget, QApplication, QGridLayout, QGroupBox, QTabWidget, QFormLayout, QRadioButton, \
-    QLineEdit, QHBoxLayout, QPushButton, QCheckBox
-from pyqtgraph.flowchart import Flowchart
+from PyQt6.QtWidgets import QApplication, QWidget, QHBoxLayout, \
+    QTabWidget, QFormLayout, QLineEdit, QRadioButton, QCheckBox, QPushButton
 
 
-class FlowChart(QTabWidget):
-
+# 自定义选项卡QTabWidget类
+class myTabWidget(QTabWidget):
     def __init__(self):
         super().__init__()
+        self.initUI()
 
     def initUI(self):
-        print('111')
         # 设置选项卡的位置、大小、标题和标签位置（上： North）
+        self.setGeometry(300, 300, 360, 160)
+        self.setWindowTitle('QTabWidget测试')
         self.setTabPosition(QTabWidget.TabPosition.North)
         # 创建用于显示控件的2个QWidget窗口对象tabW1、tabW2
         self.tabW1 = QWidget()
@@ -28,8 +23,7 @@ class FlowChart(QTabWidget):
         self.tabW1_UI()
         self.tabW2_UI()
 
-        # 定义窗口对象tabW1界面控件
-
+    # 定义窗口对象tabW1界面控件
     def tabW1_UI(self):
         fLayout = QFormLayout()
         self.xm = QLineEdit()
@@ -38,7 +32,7 @@ class FlowChart(QTabWidget):
         self.xb1.setChecked(True)
         self.csny = QLineEdit()
         btn = QPushButton("确定")
-        # btn.clicked.connect(self.clickedFunc)
+        btn.clicked.connect(self.clickedFunc)
 
         hLay = QHBoxLayout()
         hLay.addWidget(self.xb1)
@@ -50,8 +44,8 @@ class FlowChart(QTabWidget):
         self.setTabText(0, '基本信息')  # 修改第1个选项卡标题
         self.tabW1.setLayout(fLayout)
 
-        # 定义窗口对象tabW2界面控件
 
+    # 定义窗口对象tabW2界面控件
     def tabW2_UI(self):
         hLay = QHBoxLayout()
         self.cb1 = QCheckBox('C++')
@@ -64,33 +58,27 @@ class FlowChart(QTabWidget):
         self.setTabText(1, '编程语言')  # 修改第2个选项卡标题
         self.tabW2.setLayout(hLay)
 
-    def FlowChart(self):
-        pass
-        """流程图设置"""
-        # pg.setConfigOptions(background='w')
-        # pg.setConfigOptions(crashWarning=True)
-        # pg.setConfigOptions(exitCleanup=True)
 
-        # self.FlowChatlayout = QGridLayout(self)
-        # self.flowChartBox = QGroupBox(self)
-        # self.fc = Flowchart(
-        #     terminals={
-        #         'InputTerminal': {'io': 'in'},
-        #         'OutputTerminal': {'io': 'out'},
-        #         'Terminal': {'io': 'in'},
-        #         'OutTerminal': {'io': ''}
-        #     }
-        # )
-        # self.fc.inputNode.close()
-        # self.fc.outputNode.close()
-        #
-        # self.flowChartWidget = self.fc.widget().chartWidget
-        # self.flowChartLayout = QGridLayout(self.flowChartBox)
-        # self.flowChartLayout.setContentsMargins(0, 0, 0, 0)
-        # self.flowChartLayout.addWidget(self.flowChartWidget)
-        # self.FlowChatlayout.addWidget(self.flowChartBox, 0, 0, 1, 1)
+    # 命令按钮单击槽函数，
+    def clickedFunc(self):
+        # ---检查第1个选项卡中的控件
+        print(self.xm.text())
+        print(self.csny.text())
+        if self.xb1.isChecked():
+            print(self.xb1.text())
+        else:
+            print(self.xb2.text())
+        # ---检查第2个选项卡中的控件
+        if self.cb1.isChecked():
+            print(self.cb1.text())
+        if self.cb2.isChecked():
+            print(self.cb2.text())
+        if self.cb3.isChecked():
+            print(self.cb3.text())
 
-# class FlowTabWidget(QTabWidget):
-#     def __init__(self):
-#         super().__init__()
-#         self.initUI()
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    w = myTabWidget()  # 创建选项卡对象
+    w.show()
+    sys.exit(app.exec())
