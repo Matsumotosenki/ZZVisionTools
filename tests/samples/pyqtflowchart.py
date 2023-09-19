@@ -32,7 +32,20 @@ class DemoUI(QWidget):
         self.flowChartLayout = QGridLayout(self.flowChartBox)
         self.flowChartLayout.setContentsMargins(1, 2, 1, 5)
         self.flowChartLayout.addWidget(self.flowChartWidget)
+
+
+        self.fc.inputNode.close()
+        self.fc.outputNode.close()
+
+        rand_node = self.fc.createNode('Max', pos=(0, 0))
+
+        plot_node = self.fc.createNode('GaussianFilter', pos=(200, 0))
+
+        # 将两个节点连接起来
+        self.fc.connectTerminals(rand_node['Out'], plot_node['In'])
+
         self.layout.addWidget(self.flowChartBox, 0, 0, 1, 1)
+
 
 
 if __name__ == '__main__':
