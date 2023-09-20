@@ -3,14 +3,12 @@ Author:Qychui
 DATE:2023/9/13 14:26
 File:tool_bar.py
 """
-import random
 
 from PyQt6 import QtCore
-
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from PyQt6.QtWidgets import *
-from pyqtgraph.flowchart import Flowchart
+from flow_chart import FlowChartView
 
 
 class ToolWindows(QMainWindow):
@@ -22,11 +20,14 @@ class ToolWindows(QMainWindow):
     def initUI(self):
         # 最上方的菜单和最底下的状态栏显示
         self.MenuBar()
-        # 工具栏
+        # 最上边工具栏
         self.ToolBar()
-        # 流程图
+        # 中心流程图
         self.FlowChart()
-        # 图像处理
+        # TODO():右上角属性栏需要重写一个点击实时同步
+        # 右上角属性栏
+        self.FlowChartValue()
+        # 左边图像处理
         self.ImageProces()
         # 窗口布局层，放在最后
         self.LayoutWindows()
@@ -34,6 +35,9 @@ class ToolWindows(QMainWindow):
     '''窗口布局设定函数'''
 
     def LayoutWindows(self):
+        '''视图层说明'''
+
+        '''左侧工具栏窗口设置'''
         self.topLeft = QFrame(self)
         self.topLeft.setFrameShape(QFrame.Shape.StyledPanel)
         self.topLeft.setMaximumWidth(160)
@@ -41,29 +45,36 @@ class ToolWindows(QMainWindow):
         # self.topLeft.setFixedWidth(150)
         self.topLeft.setLayout(self.img_process_layout)
 
+        '''中间的流程图窗口设置'''
         self.topMiddle = QFrame(self)
         self.topMiddle.setFrameShape(QFrame.Shape.StyledPanel)
         self.topMiddle.setBaseSize(400, 300)
         self.topMiddle.setMinimumWidth(300)
         self.topMiddle.setLayout(self.flow_chart_layout)
 
+        '''右上角属性窗口'''
         self.topRight_t = QFrame(self)
         self.topRight_t.setFrameShape(QFrame.Shape.StyledPanel)
         self.topRight_t.setMinimumHeight(200)
+        self.topRight_t.setLayout(self.flow_chart_value)
+
+        '''右下角图像查看窗口'''
         self.topRight_b = QFrame(self)
         self.topRight_b.setFrameShape(QFrame.Shape.StyledPanel)
         self.topRight_b.setMaximumHeight(300)
         self.topRight_b.setMinimumHeight(100)
 
+        '''右边上下窗口整合到topRight_splitter中'''
         self.topRight_splitter = QSplitter(QtCore.Qt.Orientation.Vertical)
         self.topRight_splitter.addWidget(self.topRight_t)
         self.topRight_splitter.addWidget(self.topRight_b)
         self.topRight_splitter.setMinimumWidth(400)
 
-        self.botSplitter = QFrame(self)
-        self.botSplitter.setFrameShape(QFrame.Shape.StyledPanel)
-        self.botSplitter.setBaseSize(600, 150)
-        self.botSplitter.setMinimumHeight(50)
+        '''底部窗口：显示控制台指令和参数等等'''
+        # self.botSplitter = QFrame(self)
+        # self.botSplitter.setFrameShape(QFrame.Shape.StyledPanel)
+        # self.botSplitter.setBaseSize(600, 150)
+        # self.botSplitter.setMinimumHeight(50)
 
         self.topSplitter = QSplitter(self)
 
@@ -74,13 +85,15 @@ class ToolWindows(QMainWindow):
         self.topSplitter.setMinimumHeight(400)
         self.topSplitter.setFixedHeight(600)
 
-        self.mainSplitter = QSplitter(self)
-        # 实例化botSplitter并将初始方向设置为水平
-        self.mainSplitter.setOrientation(QtCore.Qt.Orientation.Vertical)
-        self.mainSplitter.addWidget(self.topSplitter)
-        self.mainSplitter.addWidget(self.botSplitter)
+        # self.mainSplitter = QSplitter(self)
+        # # 实例化botSplitter并将初始方向设置为水平
+        # self.mainSplitter.setOrientation(QtCore.Qt.Orientation.Vertical)
+        # self.mainSplitter.addWidget(self.topSplitter)
 
-        self.setCentralWidget(self.mainSplitter)
+        '''底部添加窗口'''
+        # self.mainSplitter.addWidget(self.botSplitter)
+
+        self.setCentralWidget(self.topSplitter)
 
     '''工具栏布局函数'''
 
@@ -149,21 +162,27 @@ class ToolWindows(QMainWindow):
         self.img_process_layout.addWidget(self.img_process_list)
 
     def FlowChart(self):
-        self.flowChart = FlowChart()
+        self.flowChart = FlowChartView()
         self.flow_chart_layout = QVBoxLayout(self)
         self.flow_chart_layout.addWidget(self.flowChart)
 
+    def FlowChartValue(self):
+        self.flow_chart_value = QVBoxLayout(self)
+        self.flow_chart_value.addWidget(self.flowChart.fc.widget())
 
+
+'''该类型用于生成左侧工具栏里的工具'''
 class ZZListWidget(QListWidget):
     def __init__(self):
         super().__init__()
         process_name = [
+            {"name": "图像输入", "icon_path": "icon/Open.png"},
+            {"name": "图像保存", "icon_path": "icon/Save.png"},
             {"name": "灰度化", "icon_path": "icon/Edit.png"},
             {"name": "二值化", "icon_path": "icon/Quit.png"},
             {"name": "霍夫圆检测", "icon_path": "icon/Quit.png"},
             {"name": "截取ROI区域", "icon_path": "icon/Quit.png"},
-            {"name": "图像输入", "icon_path": "icon/Open.png"},
-            {"name": "图像保存", "icon_path": "icon/Save.png"}
+
         ]
 
         for data in process_name:
@@ -195,138 +214,3 @@ class ZZListWidget(QListWidget):
         if selected_item:
             row = self.row(selected_item)
             self.takeItem(row)
-
-
-# TODO(gongzi): 把FlowChart单独拎出一个类
-class FlowChart(QTabWidget):
-
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-
-        '''添加一个初始选项窗口'''
-        self.new_tab = QWidget()
-        self.insertTab(self.count(), self.new_tab, f'选项卡{self.count() + 1}')
-        self.tab_UI()
-
-        '''加号键的事件'''
-        self.addTab(QWidget(), "+")
-        self.tabBarClicked.connect(self.addTabAction)
-        self.tabBarDoubleClicked.connect(self.closeTab)
-
-        # 设置初始选项卡为活动状态
-        self.setCurrentIndex(0)
-
-    def addTabAction(self, index):
-        # 当点击“+”按钮选项卡时
-        if index == self.count() - 1:
-            # 创建一个新选项卡
-            # TODO():选项卡需要设置关闭按钮和双击自定义名称的功能
-            self.new_tab = QWidget()
-
-            #     self.insertTab(self.count() - 1, self.new_tab, "")  # 空标题
-            #     self.setTabText(self.count() - 2, f'选项卡{self.count()}')
-            #     close_button = QPushButton("X")
-            #     close_button.clicked.connect(lambda _, i=self.count() - 1: self.closeTab(i))
-            #     self.tab_UI()
-            #     self.tabBar().setTabButton(self.count() - 2, QTabBar.ButtonPosition.RightSide, close_button)
-            #     self.setCurrentIndex(self.count() - 2)
-            # else:
-            #     self.setCurrentIndex(index)
-
-            self.insertTab(self.count() - 1, self.new_tab, f'选项卡{self.count()}')
-            self.tab_UI()
-            self.setCurrentIndex(self.count() - 2)  # 设置新选项卡为活动状态
-
-    def closeTab(self, index):
-        self.removeTab(index)
-
-    def FlowChart(self):
-        self.tab_UI()
-
-    # def tabW1_UI(self):
-    #     fLayout = QFormLayout()
-    #     self.xm = QLineEdit()
-    #     self.xb1 = QRadioButton('男')
-    #     self.xb2 = QRadioButton('女')
-    #     self.xb1.setChecked(True)
-    #     self.csny = QLineEdit()
-    #     btn = QPushButton("确定")
-    #     # btn.clicked.connect(self.clickedFunc)
-    #
-    #     hLay = QHBoxLayout()
-    #     hLay.addWidget(self.xb1)
-    #     hLay.addWidget(self.xb2)
-    #     fLayout.addRow('姓名: ', self.xm)
-    #     fLayout.addRow('性别: ', hLay)
-    #     fLayout.addRow('出生年月: ', self.csny)
-    #     fLayout.addRow(' ', btn)
-    #     self.setTabText(0, '基本信息')  # 修改第1个选项卡标题
-    #     self.tabW1.setLayout(fLayout)
-    #
-    #     # 定义窗口对象tabW2界面控件
-    #
-    # def tabW2_UI(self):
-    #     hLay = QHBoxLayout()
-    #     self.cb1 = QCheckBox('C++')
-    #     self.cb2 = QCheckBox('Java')
-    #     self.cb3 = QCheckBox('C#')
-    #     self.cb1.setChecked(True)
-    #     hLay.addWidget(self.cb1)
-    #     hLay.addWidget(self.cb2)
-    #     hLay.addWidget(self.cb3)
-    #     self.setTabText(1, '编程语言')  # 修改第2个选项卡标题
-    #     self.tabW2.setLayout(hLay)
-
-    def tab_UI(self, default_sel=0):
-        """流程图设置"""
-        # pg.setConfigOptions(background='w')
-        # pg.setConfigOptions(crashWarning=True)
-        # pg.setConfigOptions(exitCleanup=True)
-
-        flowLayout = QHBoxLayout()
-
-        self.FlowChatlayout = QGridLayout(self)
-        self.flowChartBox = QGroupBox(self)
-
-        self.fc = Flowchart()
-
-        '''默认节点隐藏'''
-        self.fc.inputNode.close()
-        self.fc.outputNode.close()
-
-
-
-        self.flowChartWidget = self.fc.widget().chartWidget
-        self.flowChartLayout = QGridLayout(self.flowChartBox)
-        self.flowChartLayout.setContentsMargins(0, 0, 0, 0)
-        self.flowChartLayout.addWidget(self.flowChartWidget)
-
-        random_val = random.randint(0,2)
-        if random_val == 0:
-            rand_node = self.fc.createNode('Max', pos=(0, 0))
-
-            plot_node = self.fc.createNode('GaussianFilter', pos=(200, 0))
-
-            # 将两个节点连接起来
-            self.fc.connectTerminals(rand_node['Out'], plot_node['In'])
-        elif random_val == 1:
-            rand_node = self.fc.createNode('Min', pos=(0, 0))
-
-            plot_node = self.fc.createNode('GaussianFilter', pos=(200, 0))
-
-            # 将两个节点连接起来
-            self.fc.connectTerminals(rand_node['Out'], plot_node['In'])
-        elif random_val == 2:
-            pass
-
-
-
-        flowLayout.addWidget(self.flowChartBox, 0)
-        if default_sel == 1:
-            # self.new_tab.setLayout(flowLayout)
-            print(1)
-        else:
-            self.new_tab.setLayout(flowLayout)

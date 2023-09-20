@@ -8,7 +8,6 @@ import sys
 
 from tool_bar import ToolWindows
 from ui_event import UIEvent
-
 from PyQt6.QtWidgets import QApplication, QWidget
 
 

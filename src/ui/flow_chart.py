@@ -4,93 +4,121 @@ DATE:2023/9/14 17:29
 File:flow_chart.py
 """
 import sys
-
-from PyQt6.QtWidgets import QWidget, QApplication, QGridLayout, QGroupBox, QTabWidget, QFormLayout, QRadioButton, \
-    QLineEdit, QHBoxLayout, QPushButton, QCheckBox
+import random
+import pyqtgraph.flowchart.library as fclib
+from PyQt6.QtWidgets import QTabWidget, QWidget, QHBoxLayout, QGridLayout, QGroupBox
 from pyqtgraph.flowchart import Flowchart
 
+'''
+这段代码用于实现访问image_processing中的类方法
+有一些编译器由于规则配置的问题可能会报错，但是并不影响正常运行
+'''
+sys.path.append('..')
+from image_processing import *
 
-class FlowChart(QTabWidget):
+
+class FlowChartView(QTabWidget):
 
     def __init__(self):
         super().__init__()
+        self.initUI()
 
     def initUI(self):
-        print('111')
-        # 设置选项卡的位置、大小、标题和标签位置（上： North）
-        self.setTabPosition(QTabWidget.TabPosition.North)
-        # 创建用于显示控件的2个QWidget窗口对象tabW1、tabW2
-        self.tabW1 = QWidget()
-        self.tabW2 = QWidget()
-        # tabW1、tabW2窗口分别加入选项卡1和选项卡2
-        self.addTab(self.tabW1, '选项卡1')
-        self.addTab(self.tabW2, '选项卡2')
-        self.tabW1_UI()
-        self.tabW2_UI()
 
-        # 定义窗口对象tabW1界面控件
+        '''添加一个初始选项窗口'''
+        self.new_tab = QWidget()
+        self.insertTab(self.count(), self.new_tab, f'选项卡{self.count() + 1}')
+        self.tab_UI()
 
-    def tabW1_UI(self):
-        fLayout = QFormLayout()
-        self.xm = QLineEdit()
-        self.xb1 = QRadioButton('男')
-        self.xb2 = QRadioButton('女')
-        self.xb1.setChecked(True)
-        self.csny = QLineEdit()
-        btn = QPushButton("确定")
-        # btn.clicked.connect(self.clickedFunc)
+        '''加号键的事件'''
+        self.addTab(QWidget(), "+")
+        self.tabBarClicked.connect(self.addTabAction)
+        self.tabBarDoubleClicked.connect(self.closeTab)
 
-        hLay = QHBoxLayout()
-        hLay.addWidget(self.xb1)
-        hLay.addWidget(self.xb2)
-        fLayout.addRow('姓名: ', self.xm)
-        fLayout.addRow('性别: ', hLay)
-        fLayout.addRow('出生年月: ', self.csny)
-        fLayout.addRow(' ', btn)
-        self.setTabText(0, '基本信息')  # 修改第1个选项卡标题
-        self.tabW1.setLayout(fLayout)
+        # 设置初始选项卡为活动状态
+        self.setCurrentIndex(0)
+        '''这里创建了两个自定义的方法'''
+        fclib.registerNodeType(ImageViewNode, [('Display',)])
+        fclib.registerNodeType(UnsharpMaskNode, [('Image',)])
 
-        # 定义窗口对象tabW2界面控件
+    def addTabAction(self, index):
+        # 当点击“+”按钮选项卡时
+        if index == self.count() - 1:
+            # 创建新的选项卡
+            # TODO():选项卡需要设置关闭按钮和双击自定义名称的功能
+            self.new_tab = QWidget()
 
-    def tabW2_UI(self):
-        hLay = QHBoxLayout()
-        self.cb1 = QCheckBox('C++')
-        self.cb2 = QCheckBox('Java')
-        self.cb3 = QCheckBox('C#')
-        self.cb1.setChecked(True)
-        hLay.addWidget(self.cb1)
-        hLay.addWidget(self.cb2)
-        hLay.addWidget(self.cb3)
-        self.setTabText(1, '编程语言')  # 修改第2个选项卡标题
-        self.tabW2.setLayout(hLay)
+            #     用于实现添加关闭按钮的功能
+            #     self.insertTab(self.count() - 1, self.new_tab, "")  # 空标题
+            #     self.setTabText(self.count() - 2, f'选项卡{self.count()}')
+            #     close_button = QPushButton("X")
+            #     close_button.clicked.connect(lambda _, i=self.count() - 1: self.closeTab(i))
+            #     self.tab_UI()
+            #     self.tabBar().setTabButton(self.count() - 2, QTabBar.ButtonPosition.RightSide, close_button)
+            #     self.setCurrentIndex(self.count() - 2)
+            # else:
+            #     self.setCurrentIndex(index)
+
+            self.insertTab(self.count() - 1, self.new_tab, f'选项卡{self.count()}')
+            self.tab_UI()
+            self.setCurrentIndex(self.count() - 2)  # 设置新选项卡为活动状态
+
+    def closeTab(self, index):
+        self.removeTab(index)
 
     def FlowChart(self):
-        pass
+        self.tab_UI()
+
+    def tab_UI(self, default_sel=0):
         """流程图设置"""
         # pg.setConfigOptions(background='w')
         # pg.setConfigOptions(crashWarning=True)
         # pg.setConfigOptions(exitCleanup=True)
 
-        # self.FlowChatlayout = QGridLayout(self)
-        # self.flowChartBox = QGroupBox(self)
-        # self.fc = Flowchart(
-        #     terminals={
-        #         'InputTerminal': {'io': 'in'},
-        #         'OutputTerminal': {'io': 'out'},
-        #         'Terminal': {'io': 'in'},
-        #         'OutTerminal': {'io': ''}
-        #     }
-        # )
-        # self.fc.inputNode.close()
-        # self.fc.outputNode.close()
-        #
-        # self.flowChartWidget = self.fc.widget().chartWidget
-        # self.flowChartLayout = QGridLayout(self.flowChartBox)
-        # self.flowChartLayout.setContentsMargins(0, 0, 0, 0)
-        # self.flowChartLayout.addWidget(self.flowChartWidget)
-        # self.FlowChatlayout.addWidget(self.flowChartBox, 0, 0, 1, 1)
+        flowLayout = QHBoxLayout()
 
-# class FlowTabWidget(QTabWidget):
-#     def __init__(self):
-#         super().__init__()
-#         self.initUI()
+        self.FlowChatlayout = QGridLayout(self)
+        self.flowChartBox = QGroupBox(self)
+
+        self.fc = Flowchart()
+
+        '''默认节点隐藏'''
+        self.fc.inputNode.close()
+        self.fc.outputNode.close()
+
+        self.flowChartWidget = self.fc.widget().chartWidget
+        self.flowChartLayout = QGridLayout(self.flowChartBox)
+        self.flowChartLayout.setContentsMargins(0, 0, 0, 0)
+        self.flowChartLayout.addWidget(self.flowChartWidget)
+
+        random_val = random.randint(0, 2)
+
+        ''' 默认第一创建的窗口执行下列第三个分支'''
+        # TODO():后期要改回来
+        if default_sel == 0:
+            random_val = 2
+
+        if random_val == 0:
+            rand_node = self.fc.createNode('Max', pos=(0, 0))
+
+            plot_node = self.fc.createNode('GaussianFilter', pos=(200, 0))
+
+            # 将两个节点连接起来
+            self.fc.connectTerminals(rand_node['Out'], plot_node['In'])
+        elif random_val == 1:
+            rand_node = self.fc.createNode('Min', pos=(0, 0))
+
+            plot_node = self.fc.createNode('GaussianFilter', pos=(200, 0))
+
+            # 将两个节点连接起来
+            self.fc.connectTerminals(rand_node['Out'], plot_node['In'])
+        elif random_val == 2:
+            pass
+
+        flowLayout.addWidget(self.flowChartBox, 0)
+        if default_sel == 1:
+            # self.new_tab.setLayout(flowLayout)
+            print('tab error')
+        else:
+            print('new tab created')
+            self.new_tab.setLayout(flowLayout)
