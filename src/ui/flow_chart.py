@@ -5,6 +5,7 @@ File:flow_chart.py
 """
 import sys
 import random
+import cv2
 import pyqtgraph.flowchart.library as fclib
 from PyQt6.QtWidgets import QTabWidget, QWidget, QHBoxLayout, QGridLayout, QGroupBox
 from pyqtgraph.flowchart import Flowchart
@@ -28,7 +29,7 @@ class FlowChartView(QTabWidget):
         '''添加一个初始选项窗口'''
         self.new_tab = QWidget()
         self.insertTab(self.count(), self.new_tab, f'选项卡{self.count() + 1}')
-        self.tab_UI()
+        self.tab_UI(default_sel=1)
 
         '''加号键的事件'''
         self.addTab(QWidget(), "+")
@@ -39,7 +40,7 @@ class FlowChartView(QTabWidget):
         self.setCurrentIndex(0)
         '''这里创建了两个自定义的方法'''
         fclib.registerNodeType(ImageViewNode, [('Display',)])
-        fclib.registerNodeType(UnsharpMaskNode, [('Image',)])
+        fclib.registerNodeType(ImageGray,[('Process',)])
 
     def addTabAction(self, index):
         # 当点击“+”按钮选项卡时
@@ -83,7 +84,7 @@ class FlowChartView(QTabWidget):
         self.fc = Flowchart()
 
         '''默认节点隐藏'''
-        self.fc.inputNode.close()
+        # self.fc.inputNode.close()
         self.fc.outputNode.close()
 
         self.flowChartWidget = self.fc.widget().chartWidget
@@ -95,7 +96,7 @@ class FlowChartView(QTabWidget):
 
         ''' 默认第一创建的窗口执行下列第三个分支'''
         # TODO():后期要改回来
-        if default_sel == 0:
+        if default_sel == 1:
             random_val = 2
 
         if random_val == 0:
@@ -117,8 +118,8 @@ class FlowChartView(QTabWidget):
 
         flowLayout.addWidget(self.flowChartBox, 0)
         if default_sel == 1:
-            # self.new_tab.setLayout(flowLayout)
-            print('tab error')
+            print('创建了第一个窗口栏')
+            self.new_tab.setLayout(flowLayout)
         else:
             print('new tab created')
             self.new_tab.setLayout(flowLayout)

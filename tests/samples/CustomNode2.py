@@ -4,6 +4,7 @@ DATE:2023/9/20 11:20
 File:CustomNode2.py
 """
 import cv2
+from PIL import Image
 import numpy as np
 import os
 import pyqtgraph as pg
@@ -34,11 +35,10 @@ layout.addWidget(fc.widget(), 0, 0, 2, 1)
 ## Create two ImageView widgets to display the raw and processed data with contrast
 ## and color control.
 v1 = pg.ImageView()
-v2 = pg.ImageView()
 layout.addWidget(v1, 0, 1)
-layout.addWidget(v2, 1, 1)
 
 win.show()
+win.showMaximized()  # 打开时默认全屏显示
 
 ## generate random input data
 data = np.random.normal(size=(100, 100))
@@ -49,10 +49,12 @@ data[30:50, 30:50] += 15.0
 # data += np.sin(np.linspace(0, 100, 1000))
 # data = metaarray.MetaArray(data, info=[{'name': 'Time', 'values': np.linspace(0, 1.0, len(data))}, {}])
 
-output = cv2.imread('A7R06362-1-e1603849094415.jpg')
+output = cv2.imread('../images/OIP-C.jpg')
+# default_out = cv2.cvtColor(output,cv2.COLOR_RGB2GRAY)
 
 ## Set the raw data as the input value to the flowchart
 fc.setInput(dataIn=output)
+fc.outputNode.close()
 
 
 ## At this point, we need some custom Node classes since those provided in the library
@@ -61,7 +63,7 @@ fc.setInput(dataIn=output)
 ## flowchart control panel)
 
 class ImageViewNode(Node):
-    """Node that displays image data in an ImageView widget"""
+    """Node that displays images data in an ImageView widget"""
     nodeName = 'ImageView'
 
     def __init__(self, name):
@@ -87,6 +89,8 @@ class ImageViewNode(Node):
 ## We will define an unsharp masking filter node as a subclass of CtrlNode.
 ## CtrlNode is just a convenience class that automatically creates its
 ## control widget based on a simple data structure.
+
+# 反锐化掩模
 class UnsharpMaskNode(CtrlNode):
     """Return the input data passed through an unsharp mask."""
     nodeName = "UnsharpMask"
@@ -110,41 +114,30 @@ class UnsharpMaskNode(CtrlNode):
         # CtrlNode has created self.ctrls, which is a dict containing {ctrlName: widget}
         sigma = self.ctrls['sigma'].value()
         strength = self.ctrls['strength'].value()
-        # output = dataIn - (strength * pg.gaussianFilter(dataIn, (sigma, sigma)))
-        output = dataIn
+        output = dataIn - (strength * pg.gaussianFilter(dataIn, (sigma, sigma)))
+
         return {'dataOut': output}
 
 
-class LoadLocalImage(CtrlNode):
-    nodeName = '载入本地图像'
+class ImageGray(CtrlNode):
+    nodeName = 'ImageGray'
     uiTemplate = [
-        ('文件路径', 'spin', {'value': 1.0, 'step': 1.0, 'bounds': [0.0, None]}),
-        ('ROI区域设置', 'spin', {'value': 1.0, 'dec': True, 'step': 0.5, 'minStep': 0.01, 'bounds': [0.0, None]}),
+        ('checkGray', 'check', {'checked': True}),
     ]
 
     def __init__(self, name):
         # 定义输入输出终端
         terminals = {
-            # 'dataIn': dict(io='in'),  # 图像的输入路径
-            'dataOut': dict(io='out'),  # 定义输出图像
+            'dataIn': dict(io='in'),  # 图像的输入
+            'dataOut': dict(io='out'),  # 定义输出
         }  # 可以自己定义加入多种输入输出节点信息和名称
 
         CtrlNode.__init__(self, name, terminals=terminals)
 
     '''这是程序的逻辑层'''
-
-    def process(self, dataOut, display=True):
-        # output = cv2.imread('')
-        input_path = self.ctrls['文件路径'].value()
-
-        if os.path.exists(input_path):
-            output = cv2.imread(input_path)
-        else:
-            print("文件路径无效或文件不存在:", input_path)
-            output = None
-
-        return {'dataOut': output}
-
+    def process(self, dataIn, display=True):
+        dataout = cv2.cvtColor(dataIn, cv2.COLOR_RGB2GRAY)
+        return {'dataOut': dataout}
 
 ## To make our custom node classes available in the flowchart context menu,
 ## we can either register them with the default node library or make a
@@ -164,27 +157,23 @@ library = fclib.LIBRARY.copy()  # start with the default node set
 library.addNodeType(ImageViewNode, [('Display',)])
 # Add the unsharp mask node to two locations in the menu to demonstrate
 # that we can create arbitrary menu structures
-library.addNodeType(UnsharpMaskNode, [('Image',),
-                                      ('Submenu_test', 'submenu2', 'submenu3')])
-library.addNodeType(LoadLocalImage, [('Vision',),
-                                     ('图像源读取',)])
+library.addNodeType(UnsharpMaskNode, [('Vision',)])
+library.addNodeType(ImageGray, [('Vision',)])
 fc.setLibrary(library)
 
 ## Now we will programmatically add nodes to define the function of the flowchart.
 ## Normally, the user will do this manually or by loading a pre-generated
 ## flowchart file.
 
-v1Node = fc.createNode('ImageView', pos=(0, -150))
+v1Node = fc.createNode('ImageView', pos=(300, 0))
 v1Node.setView(v1)
 
-v2Node = fc.createNode('ImageView', pos=(150, -150))
-v2Node.setView(v2)
+fNode = fc.createNode('UnsharpMask', pos=(150, 0))
 
-fNode = fc.createNode('UnsharpMask', pos=(0, 0))
-fc.connectTerminals(fc['dataIn'], fNode['dataIn'])
-fc.connectTerminals(fc['dataIn'], v1Node['data'])
-fc.connectTerminals(fNode['dataOut'], v2Node['data'])
-fc.connectTerminals(fNode['dataOut'], fc['dataOut'])
+cNode = fc.createNode('ImageGray',pos=(0,0))
+fc.connectTerminals(fc['dataIn'], cNode['dataIn'])
+fc.connectTerminals(fNode['dataOut'], v1Node['data'])
+fc.connectTerminals(cNode['dataOut'],fNode['dataIn'])
 
 if __name__ == '__main__':
     pg.exec()
