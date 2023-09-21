@@ -14,7 +14,7 @@ from pyqtgraph.flowchart.library.common import CtrlNode
 from pyqtgraph.Qt import QtWidgets
 
 app = pg.mkQApp("Flowchart Custom Node Example")
-
+print('123')
 ## Create main window with a grid layout inside
 win = QtWidgets.QMainWindow()
 win.setWindowTitle('pyqtgraph example: FlowchartCustomNode')
