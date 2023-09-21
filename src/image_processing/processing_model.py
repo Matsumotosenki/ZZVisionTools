@@ -3,6 +3,7 @@ Author:Qychui
 DATE:2023/9/15 17:36
 File:processing_model.py
 """
+import cv2
 import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.flowchart.library.common import CtrlNode
@@ -10,7 +11,7 @@ from pyqtgraph.flowchart import Node
 
 
 class ImageViewNode(Node):
-    """Node that displays image data in an ImageView widget"""
+    """Node that displays images data in an ImageView widget"""
     nodeName = 'ImageView'
 
     def __init__(self, name):
@@ -32,35 +33,26 @@ class ImageViewNode(Node):
             else:
                 self.view.setImage(data)
 
-class UnsharpMaskNode(CtrlNode):
-    """Return the input data passed through an unsharp mask."""
-    nodeName = "UnsharpMask"
+
+class ImageGray(CtrlNode):
+    nodeName = '图像灰度化'
     uiTemplate = [
-        ('sigma', 'spin', {'value': 1.0, 'step': 1.0, 'bounds': [0.0, None]}),
-        ('strength', 'spin', {'value': 1.0, 'dec': True, 'step': 0.5, 'minStep': 0.01, 'bounds': [0.0, None]}),
-        ('main','spin',{'value':1.0,'step':2.0,'bounds':[0.0,None]})
+        ('启用灰度化', 'check', {'checked': True}),
     ]
 
     def __init__(self, name):
-        ## Define the input / output terminals available on this node
+        # 定义输入输出终端
         terminals = {
-            'dataIn': dict(io='in'),  # each terminal needs at least a name and
-            'dataOut': dict(io='out'),  # to specify whether it is input or output
-        }  # other more advanced options are available
-        # as well..
+            'dataIn': dict(io='in'),  # 图像的输入
+            'dataOut': dict(io='out'),  # 定义输出
+        }  # 可以自己定义加入多种输入输出节点信息和名称
 
         CtrlNode.__init__(self, name, terminals=terminals)
 
+    '''这是程序的逻辑层'''
+
     def process(self, dataIn, display=True):
-        # CtrlNode has created self.ctrls, which is a dict containing {ctrlName: widget}
-        sigma = self.ctrls['sigma'].value()
-        strength = self.ctrls['strength'].value()
-        output = dataIn - (strength * pg.gaussianFilter(dataIn, (sigma, sigma)))
+
+        output = cv2.cvtColor(dataIn,cv2.COLOR_GRAY2BGR)
         return {'dataOut': output}
 
-# 测试用不喜欢随便删
-class MonaWin():
-    def __init__(self):
-        print('win')
-    def started(self):
-        print('winwin')

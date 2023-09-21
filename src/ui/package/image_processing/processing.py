@@ -15,7 +15,7 @@ class MonaWin():
         print('winwin')
 
 class ImageViewNode(Node):
-    """Node that displays image data in an ImageView widget"""
+    """Node that displays images data in an ImageView widget"""
     nodeName = 'ImageView'
 
     def __init__(self, name):
