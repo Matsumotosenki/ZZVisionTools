@@ -4,9 +4,7 @@ DATE:2023/9/20 11:20
 File:CustomNode2.py
 """
 import cv2
-from PIL import Image
 import numpy as np
-import os
 import pyqtgraph as pg
 import pyqtgraph.flowchart.library as fclib
 from pyqtgraph.flowchart import Flowchart, Node
@@ -135,9 +133,34 @@ class ImageGray(CtrlNode):
         CtrlNode.__init__(self, name, terminals=terminals)
 
     '''这是程序的逻辑层'''
+
     def process(self, dataIn, display=True):
-        dataout = cv2.cvtColor(dataIn, cv2.COLOR_RGB2GRAY)
-        return {'dataOut': dataout}
+        dataOut = cv2.cvtColor(dataIn, cv2.COLOR_RGB2GRAY)
+        return {'dataOut': dataOut}
+
+
+class ImageBinary(CtrlNode):
+    nodeName = 'ImageBinary'
+    uiTemplate = [
+        ('thresh', 'spin', {'value': 1.0, 'step': 1.0, 'bounds': [0.0, None]}),
+        ('max_value', 'spin', {'value': 1.0, 'step': 1.0, 'bounds': [0.0, None]}),
+    ]
+
+    def __init__(self, name):
+        # 定义输入输出终端
+        terminals = {
+            'dataIn': dict(io='in'),  # 图像的输入
+            'dataOut': dict(io='out'),  # 定义输出
+        }  # 可以自己定义加入多种输入输出节点信息和名称
+
+        CtrlNode.__init__(self, name, terminals=terminals)
+
+    def process(self, dataIn, display=True):
+        ret, thresh1 = cv2.threshold(dataIn, self.ctrls['thresh'].value(), self.ctrls['max_value'].value(),
+                                     cv2.THRESH_BINARY)
+
+        return {'dataOut': thresh1}
+
 
 ## To make our custom node classes available in the flowchart context menu,
 ## we can either register them with the default node library or make a
@@ -159,6 +182,8 @@ library.addNodeType(ImageViewNode, [('Display',)])
 # that we can create arbitrary menu structures
 library.addNodeType(UnsharpMaskNode, [('Vision',)])
 library.addNodeType(ImageGray, [('Vision',)])
+library.addNodeType(ImageBinary, [('Vision',)])
+
 fc.setLibrary(library)
 
 ## Now we will programmatically add nodes to define the function of the flowchart.
@@ -169,11 +194,11 @@ v1Node = fc.createNode('ImageView', pos=(300, 0))
 v1Node.setView(v1)
 
 fNode = fc.createNode('UnsharpMask', pos=(150, 0))
-
-cNode = fc.createNode('ImageGray',pos=(0,0))
+bNode = fc.createNode('ImageBinary', pos=(150, 75))
+cNode = fc.createNode('ImageGray', pos=(0, 0))
 fc.connectTerminals(fc['dataIn'], cNode['dataIn'])
 fc.connectTerminals(fNode['dataOut'], v1Node['data'])
-fc.connectTerminals(cNode['dataOut'],fNode['dataIn'])
+fc.connectTerminals(cNode['dataOut'], fNode['dataIn'])
 
 if __name__ == '__main__':
     pg.exec()

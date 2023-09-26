@@ -5,8 +5,6 @@ File:flow_chart.py
 """
 import sys
 import random
-import cv2
-import pyqtgraph.flowchart.library as fclib
 from PyQt6.QtWidgets import QTabWidget, QWidget, QHBoxLayout, QGridLayout, QGroupBox
 from pyqtgraph.flowchart import Flowchart
 
@@ -32,15 +30,13 @@ class FlowChartView(QTabWidget):
         self.tab_UI(default_sel=1)
 
         '''加号键的事件'''
-        self.addTab(QWidget(), "+")
+        self.addTab(QWidget(), '+')
         self.tabBarClicked.connect(self.addTabAction)
         self.tabBarDoubleClicked.connect(self.closeTab)
 
         # 设置初始选项卡为活动状态
         self.setCurrentIndex(0)
-        '''这里创建了两个自定义的方法'''
-        fclib.registerNodeType(ImageViewNode, [('Display',)])
-        fclib.registerNodeType(ImageGray,[('Process',)])
+
 
     def addTabAction(self, index):
         # 当点击“+”按钮选项卡时
@@ -50,9 +46,9 @@ class FlowChartView(QTabWidget):
             self.new_tab = QWidget()
 
             #     用于实现添加关闭按钮的功能
-            #     self.insertTab(self.count() - 1, self.new_tab, "")  # 空标题
+            #     self.insertTab(self.count() - 1, self.new_tab, '')  # 空标题
             #     self.setTabText(self.count() - 2, f'选项卡{self.count()}')
-            #     close_button = QPushButton("X")
+            #     close_button = QPushButton('X')
             #     close_button.clicked.connect(lambda _, i=self.count() - 1: self.closeTab(i))
             #     self.tab_UI()
             #     self.tabBar().setTabButton(self.count() - 2, QTabBar.ButtonPosition.RightSide, close_button)
@@ -71,17 +67,21 @@ class FlowChartView(QTabWidget):
         self.tab_UI()
 
     def tab_UI(self, default_sel=0):
-        """流程图设置"""
+        '''流程图设置'''
         # pg.setConfigOptions(background='w')
         # pg.setConfigOptions(crashWarning=True)
         # pg.setConfigOptions(exitCleanup=True)
 
         flowLayout = QHBoxLayout()
 
-        self.FlowChatlayout = QGridLayout(self)
+        # self.FlowChatlayout = QGridLayout(self)
         self.flowChartBox = QGroupBox(self)
-
-        self.fc = Flowchart()
+        self.fc = Flowchart(
+            terminals={
+                'dataIn': {'io': 'in'},
+                'dataOut': {'io': 'out'}
+            }
+        )
 
         '''默认节点隐藏'''
         # self.fc.inputNode.close()
@@ -114,7 +114,13 @@ class FlowChartView(QTabWidget):
             # 将两个节点连接起来
             self.fc.connectTerminals(rand_node['Out'], plot_node['In'])
         elif random_val == 2:
-            pass
+
+            output = cv2.imread('../../tests/images/R-C.jpg')
+            self.fc.setInput(dataIn=output)
+
+            self.img_view = self.fc.createNode('ImageView', pos=(300, 0))
+
+            self.fc.connectTerminals(self.fc['dataIn'], self.img_view['data'])
 
         flowLayout.addWidget(self.flowChartBox, 0)
         if default_sel == 1:

@@ -23,7 +23,7 @@ class MainWindows(ToolWindows, QWidget):
         super().initUI()
 
         self.setWindowTitle('洲洲视觉')  # 窗口标题显示
-        self.showMaximized()  # 打开时默认全屏显示
+        self.showMaximized()  # 打开时默认全屏显示x
         self.show()
 
 

@@ -37,8 +37,10 @@ class ToolWindows(QMainWindow):
         for i in range(6):
             item = QStandardItem(QIcon('../../src/ui/icon/Edit.png'), f'Item {i + 1}')
             item.setDragEnabled(True)  # 允许拖拽
+            item.setDropEnabled(True)
             # item.setSizeHint(QSize(50, 50))
             model.appendRow(item)
+
 
         # 将模型设置给QListView
         list_view.setModel(model)
