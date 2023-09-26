@@ -30,7 +30,7 @@ class FlowChartView(QTabWidget):
         self.tab_UI(default_sel=1)
 
         '''加号键的事件'''
-        self.addTab(QWidget(), "+")
+        self.addTab(QWidget(), '+')
         self.tabBarClicked.connect(self.addTabAction)
         self.tabBarDoubleClicked.connect(self.closeTab)
 
@@ -46,9 +46,9 @@ class FlowChartView(QTabWidget):
             self.new_tab = QWidget()
 
             #     用于实现添加关闭按钮的功能
-            #     self.insertTab(self.count() - 1, self.new_tab, "")  # 空标题
+            #     self.insertTab(self.count() - 1, self.new_tab, '')  # 空标题
             #     self.setTabText(self.count() - 2, f'选项卡{self.count()}')
-            #     close_button = QPushButton("X")
+            #     close_button = QPushButton('X')
             #     close_button.clicked.connect(lambda _, i=self.count() - 1: self.closeTab(i))
             #     self.tab_UI()
             #     self.tabBar().setTabButton(self.count() - 2, QTabBar.ButtonPosition.RightSide, close_button)
@@ -67,14 +67,14 @@ class FlowChartView(QTabWidget):
         self.tab_UI()
 
     def tab_UI(self, default_sel=0):
-        """流程图设置"""
+        '''流程图设置'''
         # pg.setConfigOptions(background='w')
         # pg.setConfigOptions(crashWarning=True)
         # pg.setConfigOptions(exitCleanup=True)
 
         flowLayout = QHBoxLayout()
 
-        self.FlowChatlayout = QGridLayout(self)
+        # self.FlowChatlayout = QGridLayout(self)
         self.flowChartBox = QGroupBox(self)
         self.fc = Flowchart(
             terminals={
