@@ -5,8 +5,6 @@ File:flow_chart.py
 """
 import sys
 import random
-import cv2
-import pyqtgraph.flowchart.library as fclib
 from PyQt6.QtWidgets import QTabWidget, QWidget, QHBoxLayout, QGridLayout, QGroupBox
 from pyqtgraph.flowchart import Flowchart
 
@@ -38,9 +36,7 @@ class FlowChartView(QTabWidget):
 
         # 设置初始选项卡为活动状态
         self.setCurrentIndex(0)
-        '''这里创建了两个自定义的方法'''
-        fclib.registerNodeType(ImageViewNode, [('Display',)])
-        fclib.registerNodeType(ImageGray,[('Process',)])
+
 
     def addTabAction(self, index):
         # 当点击“+”按钮选项卡时
@@ -80,8 +76,12 @@ class FlowChartView(QTabWidget):
 
         self.FlowChatlayout = QGridLayout(self)
         self.flowChartBox = QGroupBox(self)
-
-        self.fc = Flowchart()
+        self.fc = Flowchart(
+            terminals={
+                'dataIn': {'io': 'in'},
+                'dataOut': {'io': 'out'}
+            }
+        )
 
         '''默认节点隐藏'''
         # self.fc.inputNode.close()
@@ -114,7 +114,13 @@ class FlowChartView(QTabWidget):
             # 将两个节点连接起来
             self.fc.connectTerminals(rand_node['Out'], plot_node['In'])
         elif random_val == 2:
-            pass
+
+            output = cv2.imread('../../tests/images/R-C.jpg')
+            self.fc.setInput(dataIn=output)
+
+            self.img_view = self.fc.createNode('ImageView', pos=(300, 0))
+
+            # self.fc.connectTerminals(self.fc['dataIn'], self.img_view['data'])
 
         flowLayout.addWidget(self.flowChartBox, 0)
         if default_sel == 1:

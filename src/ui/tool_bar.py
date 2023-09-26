@@ -3,7 +3,7 @@ Author:Qychui
 DATE:2023/9/13 14:26
 File:tool_bar.py
 """
-
+import pyqtgraph
 from PyQt6 import QtCore
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
@@ -27,6 +27,8 @@ class ToolWindows(QMainWindow):
         # TODO():右上角属性栏需要重写一个点击实时同步
         # 右上角属性栏
         self.FlowChartValue()
+        # 右下角图像预览
+        self.ImagePreviewLayout()
         # 左边图像处理
         self.ImageProces()
         # 窗口布局层，放在最后
@@ -61,6 +63,7 @@ class ToolWindows(QMainWindow):
         '''右下角图像查看窗口'''
         self.topRight_b = QFrame(self)
         self.topRight_b.setFrameShape(QFrame.Shape.StyledPanel)
+        self.topRight_b.setLayout(self.image_layout_view)
         self.topRight_b.setMaximumHeight(300)
         self.topRight_b.setMinimumHeight(100)
 
@@ -161,14 +164,25 @@ class ToolWindows(QMainWindow):
         self.img_process_layout = QVBoxLayout(self)
         self.img_process_layout.addWidget(self.img_process_list)
 
+    '''流程图实例化窗口'''
     def FlowChart(self):
         self.flowChart = FlowChartView()
         self.flow_chart_layout = QVBoxLayout(self)
         self.flow_chart_layout.addWidget(self.flowChart)
 
+    '''创建右上角流程图的值显示窗口'''
     def FlowChartValue(self):
         self.flow_chart_value = QVBoxLayout(self)
         self.flow_chart_value.addWidget(self.flowChart.fc.widget())
+
+    '''创建右下角图像预览窗口'''
+    def ImagePreviewLayout(self):
+        self.image_layout_view = QVBoxLayout(self)
+        self.imagePreview = pyqtgraph.ImageView()
+        self.image_layout_view.addWidget(self.imagePreview)
+
+        # TODO():函数访问不到图像、图像初始显示不出来（需要重新连接才能显示），记得修bug
+        self.flowChart.img_view.setView(self.imagePreview)
 
 
 '''该类型用于生成左侧工具栏里的工具'''
@@ -182,7 +196,6 @@ class ZZListWidget(QListWidget):
             {"name": "二值化", "icon_path": "icon/Quit.png"},
             {"name": "霍夫圆检测", "icon_path": "icon/Quit.png"},
             {"name": "截取ROI区域", "icon_path": "icon/Quit.png"},
-
         ]
 
         for data in process_name:
@@ -195,8 +208,10 @@ class ZZListWidget(QListWidget):
 
             item.setSizeHint(QSize(60, 50))
             self.addItem(item)
-            self.setDefaultDropAction(Qt.DropAction.CopyAction)  # 设置拖拽模式为复制
-            self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)  # 拖拽模式为内部拖放
+            # self.setDefaultDropAction(Qt.DropAction.CopyAction)  # 设置拖拽模式为复制
+            self.setDragDropMode(QAbstractItemView.DragDropMode.DragOnly)  # 拖拽模式为内部拖放
+
+            # self.setDefaultDropAction(Qt.DropAction.CopyAction)
 
         # 右键菜单操作
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
