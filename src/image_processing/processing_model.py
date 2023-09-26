@@ -31,7 +31,7 @@ class ImageViewNode(Node):
 
 
 class ImageGray(CtrlNode):
-    nodeName = '图像灰度化'
+    nodeName = 'ImageGray'
     uiTemplate = [
         ('启用灰度化', 'check', {'checked': True}),
     ]
@@ -62,7 +62,6 @@ class ImageBinary(CtrlNode):
     def __init__(self, name):
         terminals = {
             'dataIn': dict(io='in'),  # 图像的输入
-            'dataIn2': dict(io='in'),
             'dataOut': dict(io='out'),  # 定义输出
         }  # 可以自己定义加入多种输入输出节点信息和名称
 
@@ -74,7 +73,42 @@ class ImageBinary(CtrlNode):
         ret, thresh1 = cv2.threshold(dataIn, thresh, max_value, cv2.THRESH_BINARY)
         return {'dataOut': thresh1}
 
+'''图像输入功能'''
+class ImageInputLocal(CtrlNode):
+    nodeName = 'ImageInputLocal'
+    uiTemplate = [
+        ('选择路径未完成', 'spin', {'value': 1.0, 'step': 1.0, 'bounds': [0.0, None]}),
+    ]
+
+    def __init__(self, name):
+        terminals = {
+            'dataOut': dict(io='out'),
+        }
+
+        CtrlNode.__init__(self, name, terminals=terminals)
+
+    def process(self, dataOut, display=True):
+        pass
+
+'''图像数据输出功能'''
+class ImageOutput(CtrlNode):
+    nodeName = 'ImageOutput'
+    uiTemplate = [
+        ('勾选路径和其他参数', 'spin', {'value': 1.0, 'step': 1.0, 'bounds': [0.0, None]}),
+    ]
+
+    def __init__(self, name):
+        terminals = {
+            'dataIn': dict(io='in'),
+        }
+        CtrlNode.__init__(self, name, terminals=terminals)
+
+    def process(self, dataIn, display=True):
+        return {'dataOut': dataIn}
+
 '''这里创建了两个自定义的方法'''
 fclib.registerNodeType(ImageViewNode, [('Display',)])
 fclib.registerNodeType(ImageGray, [('Process',)])
 fclib.registerNodeType(ImageBinary, [('Process',)])
+fclib.registerNodeType(ImageInputLocal, [('ProcessData',)])
+fclib.registerNodeType(ImageOutput, [('ProcessData',)])

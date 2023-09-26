@@ -170,6 +170,7 @@ class ToolWindows(QMainWindow):
         self.img_process_layout.addWidget(self.img_process_list)
 
     '''流程图实例化窗口'''
+
     def FlowChart(self):
         self.flowChart = FlowChartView()
         self.flow_chart_layout = QVBoxLayout(self)
@@ -179,6 +180,7 @@ class ToolWindows(QMainWindow):
         event.accept()
 
     '''当释放工具栏中的工具时触发此函数'''
+
     def dropEvent(self, event):
         # TODO():要加一个判断，判断当前窗口是否为流程图窗口，若是则在当前流程图窗口创建一个新的流程模块(也可以在之前限制模块允许拖拽的范围和窗口)
         selected_item = self.img_process_list.currentItem()
@@ -186,17 +188,33 @@ class ToolWindows(QMainWindow):
         if selected_item:
             item_name = selected_item.text()
             print(f'物体被拖拽: {item_name}')
+            cursor_cos = self.flowChart.fc.viewBox.viewPos()
+            # cursor_m_pos = self.flowChart.fc.viewBox.mouseDragEvent(event)
+            print(cursor_cos)
+            # print(cursor_m_pos)
+            print(f'当前坐标为{cursor_cos.x()},{cursor_cos.y()}')
             cursor_pos = QCursor.pos()
             # 获取事件位置作为创建网格的标准
             print(f'鼠标当前位置：x={cursor_pos.x()}, y={cursor_pos.y()}')
             print(f'当前选项卡的index为:{current_tab}')
+            self.flowChart.fc.createNode('ImageGray',
+                                         pos=(cursor_cos.x() + cursor_pos.x(), cursor_cos.y() + cursor_pos.y()))
+            self.flowChart.flowChartWidget.nodeMenuTriggered()
+
+    def nodeAction(self, action):
+        if action.pos is not None:
+            pos = action.pos
+        else:
+            pos = self.menuPos
 
     '''创建右上角流程图的值显示窗口'''
+
     def FlowChartValue(self):
         self.flow_chart_value = QVBoxLayout(self)
         self.flow_chart_value.addWidget(self.flowChart.fc.widget())
 
     '''创建右下角图像预览窗口'''
+
     def ImagePreviewLayout(self):
         self.image_layout_view = QVBoxLayout(self)
         self.imagePreview = pyqtgraph.ImageView()
@@ -207,6 +225,8 @@ class ToolWindows(QMainWindow):
 
 
 '''该类型用于生成左侧工具栏里的工具'''
+
+
 class ZZListWidget(QListWidget):
     def __init__(self):
         super().__init__()
@@ -232,7 +252,6 @@ class ZZListWidget(QListWidget):
             # self.setDefaultDropAction(Qt.DropAction.CopyAction)  # 设置拖拽模式为复制
             self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)  # 拖拽模式为内部拖放
 
-
         # 右键菜单操作
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showContextMenu)
@@ -249,7 +268,3 @@ class ZZListWidget(QListWidget):
         if selected_item:
             row = self.row(selected_item)
             self.takeItem(row)
-
-
-
-
