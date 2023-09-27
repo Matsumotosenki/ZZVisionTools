@@ -191,18 +191,12 @@ class ImageCanny(CtrlNode):
     '''这是程序的逻辑层'''
 
     def process(self, dataIn, display=True):
-        try:
             minVal = float(self.ctrls['minVal'].value())
             maxVal = float(self.ctrls['maxVal'].value())
             aperture_size = int(self.ctrls['aperture_size'].value())
             L2gradient = bool(self.ctrls['L2gradient'].value())
             dataout = cv2.Canny(dataIn, minVal, maxVal, None, aperture_size, L2gradient)
             return {'dataOut': dataout}
-        except Exception as e:
-            print(f"An error occurred: {str(e)}")
-            print(f"minVal: {minVal}, maxVal: {maxVal}, aperture_size: {aperture_size}, L2gradient: {L2gradient}")
-
-            return {'dataOut': None}
 
 
 ## To make our custom node classes available in the flowchart context menu,
