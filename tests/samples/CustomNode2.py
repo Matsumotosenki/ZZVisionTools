@@ -12,9 +12,10 @@ import pyqtgraph.flowchart.library as fclib
 from pyqtgraph.flowchart import Flowchart, Node
 from pyqtgraph.flowchart.library.common import CtrlNode
 from pyqtgraph.Qt import QtWidgets
+from matplotlib import pyplot as plt
 
 app = pg.mkQApp("Flowchart Custom Node Example")
-print('123')
+print('ok')
 ## Create main window with a grid layout inside
 win = QtWidgets.QMainWindow()
 win.setWindowTitle('pyqtgraph example: FlowchartCustomNode')
@@ -135,9 +136,74 @@ class ImageGray(CtrlNode):
         CtrlNode.__init__(self, name, terminals=terminals)
 
     '''这是程序的逻辑层'''
+
     def process(self, dataIn, display=True):
         dataout = cv2.cvtColor(dataIn, cv2.COLOR_RGB2GRAY)
         return {'dataOut': dataout}
+
+
+class ImageDenoising(CtrlNode):
+    nodeName = 'ImageDenoising'
+    uiTemplate = [
+        ('h', 'spin', {'value': 10.0, 'step': 0.1, 'bounds': [0.1, 50]}),
+        ('hForColorComponents', 'spin', {'value': 10.0, 'step': 0.1, 'bounds': [0.1, 50]}),
+        ('templateWindowSize', 'spin', {'value': 7, 'step': 2, 'bounds': [1, None]}),
+        ('searchWindowSize', 'spin', {'value': 21, 'step': 2, 'bounds': [1, None]}),
+    ]
+
+    def __init__(self, name):
+        # 定义输入输出终端
+        terminals = {
+            'dataIn': dict(io='in'),  # 图像的输入
+            'dataOut': dict(io='out'),  # 定义输出
+        }  # 可以自己定义加入多种输入输出节点信息和名称
+
+        CtrlNode.__init__(self, name, terminals=terminals)
+
+    '''这是程序的逻辑层'''
+
+    def process(self, dataIn, display=True):
+        dataout = cv2.fastNlMeansDenoisingColored(dataIn, None, float(self.ctrls['h'].value()),
+                                                  float(self.ctrls['hForColorComponents'].value()),
+                                                  int(self.ctrls['templateWindowSize'].value()),
+                                                  int(self.ctrls['searchWindowSize'].value()))
+
+        return {'dataOut': dataout}
+
+class ImageCanny(CtrlNode):
+    nodeName = 'ImageCanny'
+    uiTemplate = [
+        ('minVal', 'spin', {'value': 100.0, 'step': 0.1, 'bounds': [0, None]}),
+        ('maxVal', 'spin', {'value': 200.0, 'step': 0.1, 'bounds': [0, None]}),
+        ('aperture_size', 'spin', {'value': 3, 'step': 2, 'bounds': [3, 7]}),
+        ('L2gradient', 'spin', {'value': 0, 'step': 1, 'bounds': [0, 1]}),
+    ]
+
+    def __init__(self, name):
+        # 定义输入输出终端
+        terminals = {
+            'dataIn': dict(io='in'),  # 图像的输入
+            'dataOut': dict(io='out'),  # 定义输出
+        }  # 可以自己定义加入多种输入输出节点信息和名称
+
+        CtrlNode.__init__(self, name, terminals=terminals)
+
+    '''这是程序的逻辑层'''
+
+    def process(self, dataIn, display=True):
+        try:
+            minVal = float(self.ctrls['minVal'].value())
+            maxVal = float(self.ctrls['maxVal'].value())
+            aperture_size = int(self.ctrls['aperture_size'].value())
+            L2gradient = bool(self.ctrls['L2gradient'].value())
+            dataout = cv2.Canny(dataIn, minVal, maxVal, None, aperture_size, L2gradient)
+            return {'dataOut': dataout}
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            print(f"minVal: {minVal}, maxVal: {maxVal}, aperture_size: {aperture_size}, L2gradient: {L2gradient}")
+
+            return {'dataOut': None}
+
 
 ## To make our custom node classes available in the flowchart context menu,
 ## we can either register them with the default node library or make a
@@ -159,21 +225,33 @@ library.addNodeType(ImageViewNode, [('Display',)])
 # that we can create arbitrary menu structures
 library.addNodeType(UnsharpMaskNode, [('Vision',)])
 library.addNodeType(ImageGray, [('Vision',)])
+
+library.addNodeType(ImageDenoising, [('Vision',)])
+library.addNodeType(ImageCanny, [('Vision',)])
+
 fc.setLibrary(library)
 
 ## Now we will programmatically add nodes to define the function of the flowchart.
 ## Normally, the user will do this manually or by loading a pre-generated
 ## flowchart file.
 
-v1Node = fc.createNode('ImageView', pos=(300, 0))
+v1Node = fc.createNode('ImageView', pos=(330, 0))
 v1Node.setView(v1)
 
-fNode = fc.createNode('UnsharpMask', pos=(150, 0))
+fNode = fc.createNode('UnsharpMask', pos=(110, 0))
 
-cNode = fc.createNode('ImageGray',pos=(0,0))
+cNode = fc.createNode('ImageGray', pos=(0, 0))
+
+dNode = fc.createNode('ImageDenoising', pos=(220, 0))
+
+eNode = fc.createNode('ImageCanny', pos=(0, 45))
+
 fc.connectTerminals(fc['dataIn'], cNode['dataIn'])
 fc.connectTerminals(fNode['dataOut'], v1Node['data'])
-fc.connectTerminals(cNode['dataOut'],fNode['dataIn'])
+fc.connectTerminals(cNode['dataOut'], fNode['dataIn'])
+
+fc.connectTerminals(dNode['dataIn'], fc['dataIn'])
+fc.connectTerminals(eNode['dataIn'], fc['dataIn'])
 
 if __name__ == '__main__':
     pg.exec()
