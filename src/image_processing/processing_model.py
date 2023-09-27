@@ -56,3 +56,58 @@ class ImageGray(CtrlNode):
         output = cv2.cvtColor(dataIn,cv2.COLOR_GRAY2BGR)
         return {'dataOut': output}
 
+class ImageDenoising(CtrlNode):
+    nodeName = 'ImageDenoising'
+    uiTemplate = [
+        ('h', 'spin', {'value': 10.0, 'step': 0.1, 'bounds': [0.1, 50]}),
+        ('hForColorComponents', 'spin', {'value': 10.0, 'step': 0.1, 'bounds': [0.1, 50]}),
+        ('templateWindowSize', 'spin', {'value': 7, 'step': 2, 'bounds': [1, None]}),
+        ('searchWindowSize', 'spin', {'value': 21, 'step': 2, 'bounds': [1, None]}),
+    ]
+
+    def __init__(self, name):
+        # 定义输入输出终端
+        terminals = {
+            'dataIn': dict(io='in'),  # 图像的输入
+            'dataOut': dict(io='out'),  # 定义输出
+        }  # 可以自己定义加入多种输入输出节点信息和名称
+
+        CtrlNode.__init__(self, name, terminals=terminals)
+
+    '''这是程序的逻辑层'''
+
+    def process(self, dataIn, display=True):
+        dataout = cv2.fastNlMeansDenoisingColored(dataIn, None, float(self.ctrls['h'].value()),
+                                                  float(self.ctrls['hForColorComponents'].value()),
+                                                  int(self.ctrls['templateWindowSize'].value()),
+                                                  int(self.ctrls['searchWindowSize'].value()))
+
+        return {'dataOut': dataout}
+
+class ImageCanny(CtrlNode):
+    nodeName = 'ImageCanny'
+    uiTemplate = [
+        ('minVal', 'spin', {'value': 100.0, 'step': 0.1, 'bounds': [0, None]}),
+        ('maxVal', 'spin', {'value': 200.0, 'step': 0.1, 'bounds': [0, None]}),
+        ('aperture_size', 'spin', {'value': 3, 'step': 2, 'bounds': [3, 7]}),
+        ('L2gradient', 'spin', {'value': 0, 'step': 1, 'bounds': [0, 1]}),
+    ]
+
+    def __init__(self, name):
+        # 定义输入输出终端
+        terminals = {
+            'dataIn': dict(io='in'),  # 图像的输入
+            'dataOut': dict(io='out'),  # 定义输出
+        }  # 可以自己定义加入多种输入输出节点信息和名称
+
+        CtrlNode.__init__(self, name, terminals=terminals)
+
+    '''这是程序的逻辑层'''
+
+    def process(self, dataIn, display=True):
+            minVal = float(self.ctrls['minVal'].value())
+            maxVal = float(self.ctrls['maxVal'].value())
+            aperture_size = int(self.ctrls['aperture_size'].value())
+            L2gradient = bool(self.ctrls['L2gradient'].value())
+            dataout = cv2.Canny(dataIn, minVal, maxVal, None, aperture_size, L2gradient)
+            return {'dataOut': dataout}
