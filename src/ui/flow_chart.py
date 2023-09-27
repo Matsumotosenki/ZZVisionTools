@@ -120,7 +120,7 @@ class FlowChartView(QTabWidget):
 
             self.img_view = self.fc.createNode('ImageView', pos=(300, 0))
 
-            self.fc.connectTerminals(self.fc['dataIn'], self.img_view['data'])
+            # self.fc.connectTerminals(self.fc['dataIn'], self.img_view['data'])
 
         flowLayout.addWidget(self.flowChartBox, 0)
         if default_sel == 1:

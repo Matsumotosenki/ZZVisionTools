@@ -187,25 +187,23 @@ class ToolWindows(QMainWindow):
         current_tab = self.flowChart.currentIndex()
         if selected_item:
             item_name = selected_item.text()
-            print(f'物体被拖拽: {item_name}')
-            cursor_cos = self.flowChart.fc.viewBox.viewPos()
-            # cursor_m_pos = self.flowChart.fc.viewBox.mouseDragEvent(event)
-            print(cursor_cos)
-            # print(cursor_m_pos)
-            print(f'当前坐标为{cursor_cos.x()},{cursor_cos.y()}')
-            cursor_pos = QCursor.pos()
-            # 获取事件位置作为创建网格的标准
-            print(f'鼠标当前位置：x={cursor_pos.x()}, y={cursor_pos.y()}')
             print(f'当前选项卡的index为:{current_tab}')
-            self.flowChart.fc.createNode('ImageGray',
-                                         pos=(cursor_cos.x() + cursor_pos.x(), cursor_cos.y() + cursor_pos.y()))
-            self.flowChart.flowChartWidget.nodeMenuTriggered()
+            print(f'物体被拖拽: {item_name}')
+            cursor_c_pos = self.flowChart.fc.viewBox.viewPos()
+            # cursor_pos = self.flowChart.fc.viewBox.mouseDragEvent()
+            # print(cursor_pos)
+            print(f'当前坐标为{cursor_c_pos.x()},{cursor_c_pos.y()}')
 
-    def nodeAction(self, action):
-        if action.pos is not None:
-            pos = action.pos
-        else:
-            pos = self.menuPos
+            # cursor_pos = QCursor.pos()
+            # 获取事件位置作为创建网格的标准
+            # print(f'鼠标当前位置：x={cursor_pos.x()}, y={cursor_pos.y()}')
+
+            # self.flowChart.fc.createNode('ImageGray',
+            #                              pos=(cursor_cos.x() + cursor_pos.x(), cursor_cos.y() + cursor_pos.y()))
+            # TODO():目前暂时做成这样，后期改的方向是模拟右键创建流程图模块
+            self.flowChart.fc.createNode('ImageGray', pos=(cursor_c_pos.x()+ 200, cursor_c_pos.y() + 100))
+            # self.flowChart.flowChartWidget.nodeMenuTriggered()
+
 
     '''创建右上角流程图的值显示窗口'''
 
@@ -249,7 +247,6 @@ class ZZListWidget(QListWidget):
 
             item.setSizeHint(QSize(60, 50))
             self.addItem(item)
-            # self.setDefaultDropAction(Qt.DropAction.CopyAction)  # 设置拖拽模式为复制
             self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)  # 拖拽模式为内部拖放
 
         # 右键菜单操作

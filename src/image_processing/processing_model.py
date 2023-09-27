@@ -48,7 +48,7 @@ class ImageGray(CtrlNode):
     '''这是程序的逻辑层'''
 
     def process(self, dataIn, display=True):
-        output = cv2.cvtColor(dataIn, cv2.COLOR_GRAY2BGR)
+        output = cv2.cvtColor(dataIn, cv2.COLOR_RGB2GRAY)
         return {'dataOut': output}
 
 

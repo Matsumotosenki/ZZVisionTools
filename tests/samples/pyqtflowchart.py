@@ -36,9 +36,7 @@ class DemoUI(QWidget):
         self.fc.outputNode.close()
 
         rand_node = self.fc.createNode('Max', pos=(0, 0))
-
         plot_node = self.fc.createNode('GaussianFilter', pos=(200, 0))
-
         self.fc.createNode('PlotCurve', pos=(400, 0))
 
         # 将两个节点连接起来
