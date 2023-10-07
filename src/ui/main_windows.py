@@ -5,7 +5,6 @@ File:main_windows.py
 """
 import sys
 
-
 from tool_bar import ToolWindows
 from ui_event import UIEvent
 from PyQt6.QtWidgets import QApplication, QWidget
@@ -16,7 +15,6 @@ class MainWindows(ToolWindows, QWidget):
     # 初始显示文件
     def __init__(self):
         super().__init__()
-        # self.initUI()
 
     # 窗口初始化函数，可自行添加运行
     def initUI(self):

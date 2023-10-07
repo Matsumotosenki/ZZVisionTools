@@ -35,7 +35,7 @@ class ToolWindows(QMainWindow):
 
         # 添加6个可点击、可拖拽并带有图标的项目W
         for i in range(6):
-            item = QStandardItem(QIcon('../../src/ui/icon/Edit.png'), f'Item {i + 1}')
+            item = QStandardItem(QIcon('../../../src/ui/icon/Edit.png'), f'Item {i + 1}')
             item.setDragEnabled(True)  # 允许拖拽
             item.setDropEnabled(True)
             # item.setSizeHint(QSize(50, 50))
