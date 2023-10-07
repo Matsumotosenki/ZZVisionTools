@@ -106,7 +106,7 @@ class ImageOutput(CtrlNode):
     def process(self, dataIn, display=True):
         return {'dataOut': dataIn}
 
-'''这里创建了两个自定义的方法'''
+'''这里需要把创建的自定义的方法注册进流程图中'''
 fclib.registerNodeType(ImageViewNode, [('Display',)])
 fclib.registerNodeType(ImageGray, [('Process',)])
 fclib.registerNodeType(ImageBinary, [('Process',)])
