@@ -47,7 +47,7 @@ data[30:50, 30:50] += 15.0
 # data += np.sin(np.linspace(0, 100, 1000))
 # data = metaarray.MetaArray(data, info=[{'name': 'Time', 'values': np.linspace(0, 1.0, len(data))}, {}])
 
-output = cv2.imread('../images/OIP-C.jpg')
+output = cv2.imread('../../images/OIP-C.jpg')
 # default_out = cv2.cvtColor(output,cv2.COLOR_RGB2GRAY)
 
 ## Set the raw data as the input value to the flowchart

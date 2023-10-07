@@ -3,12 +3,19 @@ Author:Qychui
 DATE:2023/9/13 14:26
 File:tool_bar.py
 '''
+import sys
+import time
+
 import pyqtgraph
 from PyQt6 import QtCore
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from PyQt6.QtWidgets import *
 from flow_chart import FlowChartView
+
+sys.path.append('..')
+from camera_interface import *
+
 
 
 class ToolWindows(QMainWindow):
@@ -136,6 +143,7 @@ class ToolWindows(QMainWindow):
         self.menubar = self.menuBar()
         self.viewMenu = self.menubar.addMenu('文件')
         self.setMenu = self.menubar.addMenu('设置')
+        self.cameraMenu = self.menubar.addMenu('相机')
         self.aboutMenu = self.menubar.addMenu('关于')
         self.helpMenu = self.menubar.addMenu('帮助')
 
@@ -150,6 +158,8 @@ class ToolWindows(QMainWindow):
 
         self.viewSet = QAction('主题设置', self)
         self.viewSet.setStatusTip('打开设置窗口')
+        self.cameraSet = QAction('相机设置',self)
+        self.cameraSet.setStatusTip('相机设置窗口')
 
         self.viewHelp = QAction('获取帮助', self)
         self.viewAbout = QAction('关于洲洲', self)
@@ -158,9 +168,13 @@ class ToolWindows(QMainWindow):
         self.viewMenu.addAction(self.viewImport)
         self.viewMenu.addAction(self.viewQuit)
 
+        self.cameraMenu.addAction(self.cameraSet)
         self.setMenu.addAction(self.viewSet)
         self.aboutMenu.addAction(self.viewAbout)
         self.helpMenu.addAction(self.viewHelp)
+
+        self.cameraSet.triggered.connect(self.CameraInterface)
+
 
         self.statusBar()
 
@@ -221,6 +235,11 @@ class ToolWindows(QMainWindow):
         # TODO():函数访问不到图像、图像初始显示不出来（需要重新连接才能显示），记得修bug
         self.flowChart.img_view.setView(self.imagePreview)
 
+    # TODO():用一个新线程写图像接口的实现方法
+    def CameraInterface(self):
+        self.camera_window = CameraWindow()
+        self.camera_window.show()
+
 
 '''该类型用于生成左侧工具栏里的工具'''
 
@@ -265,3 +284,12 @@ class ZZListWidget(QListWidget):
         if selected_item:
             row = self.row(selected_item)
             self.takeItem(row)
+
+class CameraWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.setWindowTitle('相机接口预览')
+
