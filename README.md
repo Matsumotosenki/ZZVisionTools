@@ -1,4 +1,4 @@
-# ZZVisionTools
+#PyQTVisionTools
 # 该项目当前已经废弃，此仓库仅以缅怀
 
 洲洲视觉工具
